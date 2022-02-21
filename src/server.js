@@ -19,26 +19,26 @@ app.use(express.json({
 const path = "./src/config.json";
 
 
-  let LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER, IsRunning;
+  let LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,TABS,SUBSCRIBER, IsRunning;
 
 
 
 app.get("/",(req,res) => {
     let configData = fs.readFileSync(path);
     let config = JSON.parse(configData);
-    const { LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning} = config;
+    const { LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,TABS,SUBSCRIBER,IsRunning} = config;
 
-    return  res.end(JSON.stringify({LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning}));
+    return  res.end(JSON.stringify({LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,TABS,SUBSCRIBER,IsRunning}));
 
 })
 
 app.post("/changeValues",(req,res) => {
 
-    const {  LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,SUBSCRIBER,PUBS,IsRunning} = req.body;
-    const data = {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning};
+    const {  LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,SUBSCRIBER,PUBS,TABS,IsRunning} = req.body;
+    const data = {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,TABS,SUBSCRIBER,IsRunning};
     const all = JSON.stringify(data);
     fs.writeFileSync(path, all);
-    return  res.end(JSON.stringify({LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning}));
+    return  res.end(JSON.stringify({LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,TABS,SUBSCRIBER,IsRunning}));
 
 })
 
@@ -54,14 +54,15 @@ function getConfigs(){
     LIVEKIT_IDENTITY_PREFIX = config.LIVEKIT_IDENTITY_PREFIX;
     ENABLE_PUBLISH = config.ENABLE_PUBLISH;
     PUBS = config.PUBS;
+    TABS = config.TABS;
     SUBSCRIBER = config.SUBSCRIBER;
     IsRunning= config.IsRunning;
-    return {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning};
+    return {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,TABS,SUBSCRIBER,IsRunning};
 }
 
 
 ;(async () => { 
-    const {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning} = getConfigs();
+    const {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,TABS,SUBSCRIBER,IsRunning} = getConfigs();
     if(IsRunning == 1){
         console.log("running now")
         let identityPrefix = LIVEKIT_IDENTITY_PREFIX
@@ -75,13 +76,10 @@ function getConfigs(){
         if (!testerMinutes) {
             testerMinutes = 30
         }
-      
-
         let tabCount = parseInt(SUBSCRIBER)
             if (!tabCount) {
             tabCount = 1
         }
-        console.log(tabCount)
         const browser = await puppeteer.launch({
             headless: true,
             // dumpio: true,
@@ -96,46 +94,47 @@ function getConfigs(){
             ],
             ignoreDefaultArgs: ['--mute-audio']
         });
-
-        for (var i = 0; i < tabCount; i++) {
-            let enablePublish;
-            if(i < PUBS){
-                // console.log("girdiiiiii", i)
-                enablePublish = 1
-            }else{
-                // console.log("yooooooookkk", i)
-                enablePublish = 0
-            }
-            console.log(enablePublish)
-          
-
-
-            const identity = `${identityPrefix}${Math.floor(Math.random() * 10000)}`
-
-            const at = new lkapi.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
-            identity: identity,
-            ttl: '1h',
-            });
-            at.addGrant({
-            room: roomName,
-            roomJoin: true,
-            })
-
-            const url = `https://example.livekit.io/#/room?url=${encodeURIComponent(LIVEKIT_HOST)}&token=${at.toJwt()}&videoEnabled=${enablePublish}&audioEnabled=${enablePublish}&simulcast=${enablePublish}`
-            const page = await browser.newPage();
-            page
-            .on('console', message => console.log(`${message.type().substr(0, 3).toUpperCase()} ${message.text()}`))
-            .on('pageerror', ({ message }) => console.log(message))
-            // .on('response', response =>
-            //   console.log(`${response.status()} ${response.url()}`))
-            .on('requestfailed', request =>
-                console.log(`${request.failure().errorText} ${request.url()}`))
+        console.log("tabsss:",TABS)
+        for(var b = 0; b < TABS; b++){
+            for (var i = 0; i < tabCount; i++) {
+                let enablePublish;
+                if(i < PUBS){
+                    // console.log("girdiiiiii", i)
+                    enablePublish = 1
+                }else{
+                    // console.log("yooooooookkk", i)
+                    enablePublish = 0
+                }
             
-            await page.setViewport({
-            width: 1000,
-            height: 700
-            });
-            await page.goto(url, {waitUntil: 'load', timeout: 0});
+
+
+                const identity = `${identityPrefix}${Math.floor(Math.random() * 10000)}`
+
+                const at = new lkapi.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
+                identity: identity,
+                ttl: '1h',
+                });
+                at.addGrant({
+                room: roomName,
+                roomJoin: true,
+                })
+
+                const url = `https://example.livekit.io/#/room?url=${encodeURIComponent(LIVEKIT_HOST)}&token=${at.toJwt()}&videoEnabled=${enablePublish}&audioEnabled=${enablePublish}&simulcast=${enablePublish}`
+                const page = await browser.newPage();
+                page
+                .on('console', message => console.log(`${message.type().substr(0, 3).toUpperCase()} ${message.text()}`))
+                .on('pageerror', ({ message }) => console.log(message))
+                // .on('response', response =>
+                //   console.log(`${response.status()} ${response.url()}`))
+                .on('requestfailed', request =>
+                    console.log(`${request.failure().errorText} ${request.url()}`))
+                
+                await page.setViewport({
+                width: 1000,
+                height: 700
+                });
+                await page.goto(url, {waitUntil: 'load', timeout: 0});
+            }
         }
 
         await sleep((testerMinutes + Math.random()) * 60 * 1000);
