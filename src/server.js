@@ -70,7 +70,7 @@ function getConfigs(){
             identityPrefix = "tester"
         }
 
-        let roomName = LIVEKIT_ROOM
+       
 
         let testerMinutes = parseInt(DURATION)
         if (!testerMinutes) {
@@ -96,6 +96,8 @@ function getConfigs(){
         });
         console.log("tabsss:",TABS)
         for(var b = 0; b < TABS; b++){
+            let roomName = LIVEKIT_ROOM+"number"+b
+            console.log(roomName)
             for (var i = 0; i < tabCount; i++) {
                 let enablePublish;
                 if(i < PUBS){
