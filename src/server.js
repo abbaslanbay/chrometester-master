@@ -90,6 +90,7 @@ function getConfigs(){
             headless: true,
             // dumpio: true,
             args: [
+            "--use-gl=egl",
             "--disable-gpu",
             "--no-sandbox",
             "--use-gl=swiftshader",
