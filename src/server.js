@@ -124,9 +124,7 @@ function getConfigs(){
             const url = `https://example.livekit.io/#/room?url=${encodeURIComponent(LIVEKIT_HOST)}&token=${at.toJwt()}&videoEnabled=${enablePublish}&audioEnabled=${enablePublish}&simulcast=${enablePublish}`
             const page = await browser.newPage();
             page
-            .on('console', message => {}
-                // console.log(`${message.type().SUBSCRIBERtr(0, 3).toUpperCase()} ${message.text()}`)
-                )
+            .on('console', message => console.log(`${message.type().substr(0, 3).toUpperCase()} ${message.text()}`))
             .on('pageerror', ({ message }) => console.log(message))
             // .on('response', response =>
             //   console.log(`${response.status()} ${response.url()}`))
