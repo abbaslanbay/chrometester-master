@@ -19,26 +19,26 @@ app.use(express.json({
 const path = "./src/config.json";
 
 
-  let LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,TABS,IsRunning;
+  let LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER, IsRunning;
 
 
 
 app.get("/",(req,res) => {
     let configData = fs.readFileSync(path);
     let config = JSON.parse(configData);
-    const { LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,TABS,IsRunning} = config;
+    const { LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning} = config;
 
-    return  res.end(JSON.stringify({LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,TABS,IsRunning}));
+    return  res.end(JSON.stringify({LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning}));
 
 })
 
 app.post("/changeValues",(req,res) => {
 
-    const {  LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,TABS,IsRunning} = req.body;
-    const data = {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,TABS,IsRunning};
+    const {  LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,SUBSCRIBER,PUBS,IsRunning} = req.body;
+    const data = {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning};
     const all = JSON.stringify(data);
     fs.writeFileSync(path, all);
-    return  res.end(JSON.stringify({LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,TABS,IsRunning}));
+    return  res.end(JSON.stringify({LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning}));
 
 })
 
@@ -53,15 +53,15 @@ function getConfigs(){
     DURATION = config.DURATION
     LIVEKIT_IDENTITY_PREFIX = config.LIVEKIT_IDENTITY_PREFIX;
     ENABLE_PUBLISH = config.ENABLE_PUBLISH;
-    TABS = config.TABS;
+    PUBS = config.PUBS;
+    SUBSCRIBER = config.SUBSCRIBER;
     IsRunning= config.IsRunning;
-    return {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,TABS,IsRunning};
+    return {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning};
 }
 
 
 ;(async () => { 
-    const {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,TABS,IsRunning} = getConfigs();
-    
+    const {LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_HOST,LIVEKIT_ROOM,DURATION,LIVEKIT_IDENTITY_PREFIX,ENABLE_PUBLISH,PUBS,SUBSCRIBER,IsRunning} = getConfigs();
     if(IsRunning == 1){
         console.log("running now")
         let identityPrefix = LIVEKIT_IDENTITY_PREFIX
@@ -75,17 +75,13 @@ function getConfigs(){
         if (!testerMinutes) {
             testerMinutes = 30
         }
-        console.log(testerMinutes)
-        let enablePublish = 0
-        if (ENABLE_PUBLISH) {
-            enablePublish = 1
-        }
+      
 
-        let tabCount = parseInt(TABS)
+        let tabCount = parseInt(SUBSCRIBER)
             if (!tabCount) {
             tabCount = 1
         }
-
+        console.log(tabCount)
         const browser = await puppeteer.launch({
             headless: true,
             // dumpio: true,
@@ -102,6 +98,18 @@ function getConfigs(){
         });
 
         for (var i = 0; i < tabCount; i++) {
+            let enablePublish;
+            if(i < PUBS){
+                // console.log("girdiiiiii", i)
+                enablePublish = 1
+            }else{
+                // console.log("yooooooookkk", i)
+                enablePublish = 0
+            }
+            console.log(enablePublish)
+          
+
+
             const identity = `${identityPrefix}${Math.floor(Math.random() * 10000)}`
 
             const at = new lkapi.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
@@ -116,8 +124,9 @@ function getConfigs(){
             const url = `https://example.livekit.io/#/room?url=${encodeURIComponent(LIVEKIT_HOST)}&token=${at.toJwt()}&videoEnabled=${enablePublish}&audioEnabled=${enablePublish}&simulcast=${enablePublish}`
             const page = await browser.newPage();
             page
-            .on('console', message =>
-                console.log(`${message.type().substr(0, 3).toUpperCase()} ${message.text()}`))
+            .on('console', message => {}
+                // console.log(`${message.type().SUBSCRIBERtr(0, 3).toUpperCase()} ${message.text()}`)
+                )
             .on('pageerror', ({ message }) => console.log(message))
             // .on('response', response =>
             //   console.log(`${response.status()} ${response.url()}`))
