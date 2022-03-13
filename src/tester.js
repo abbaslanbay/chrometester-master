@@ -1,11 +1,9 @@
 'use strict';
 
 const DURATION= 60;
-const MEET_URL = "https://isu.uniteroom.com/meetings/live/14ad813e-e55a-43fd-ba1a-c5d591f1b504";
-
-
+const BASE_URL = "https://isu.uniteroom.com/meetings/live/"
+const ROOM_ID = "14ad813e-e55a-43fd-ba1a-c5d591f1b504";
 const puppeteer = require('puppeteer');
-
   (async () => {
     const users = [
       {
@@ -41,12 +39,19 @@ const puppeteer = require('puppeteer');
     const promises = users.map(async (item) => {
       const context = await browser.createIncognitoBrowserContext();
       const page = await context.newPage();
+      page
+      .on('console', message => console.log(`${message.type().substr(0, 3).toUpperCase()} ${message.text()}`))
+      .on('pageerror', ({ message }) => console.log(message))
+      // .on('response', response =>
+      //   console.log(`${response.status()} ${response.url()}`))
+      .on('requestfailed', request =>
+          console.log(`${request.failure().errorText} ${request.url()}`))
       await page.setDefaultNavigationTimeout(0);
       await page.setViewport({
               width: 1000,
               height: 700
             });
-      await page.goto(MEET_URL);
+      await page.goto(BASE_URL+ROOM_ID);
       await page.type('#login-email',item.email);
       await page.type('#login-password', item.password);
       await Promise.all([
