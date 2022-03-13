@@ -17,12 +17,20 @@ const puppeteer = require('puppeteer');
       {
         email:'test@uniteroom.com',
         password:'123456789'
+      },
+      {
+        email:'akslldjasld@klasjad.com',
+        password:'123456789'
+      },
+      {
+        email:'deneme@deneme.com',
+        password:'123456789'
       }
     ]
     
     const browser = await puppeteer.launch({
       headless: true,
-      devtools: false,
+      devtools: true,
       // dumpio: true,
       args: [
         "--disable-gpu",
