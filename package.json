@@ -4,12 +4,14 @@
   "description": "Hits a livekit ",
   "main": "src/index.js",
   "scripts": {
-    "start": "nodemon src/server.js",
+    "start": "nodemon src/index.js",
+    "tester": "nodemon src/tester.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.26.1",
     "express": "^4.17.3",
     "fs": "^0.0.1-security",
     "livekit-server-sdk": "^0.5.6",
