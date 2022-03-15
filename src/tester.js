@@ -9,7 +9,7 @@ const users = require('./users');
  
     console.log(users.length)
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: false,
       devtools: true,
       // dumpio: true,
       args: [
