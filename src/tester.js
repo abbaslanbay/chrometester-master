@@ -39,9 +39,10 @@ const users = require('./users');
               width: 1000,
               height: 700
             });
+            console.log(item.email)
       await page.goto(BASE_URL+ROOM_ID);
       await page.type('#login-email',item.email);
-      await page.type('#login-password', item.password);
+      await page.type('#login-password', "123456789");
       await Promise.all([
         page.click('.btn-primary'),
         page.waitForNavigation({ waitUntil: 'networkidle0' }),
