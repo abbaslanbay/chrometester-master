@@ -2,31 +2,11 @@
 
 const DURATION= 60;
 const BASE_URL = "https://isu.uniteroom.com/meetings/live/"
-const ROOM_ID = "14ad813e-e55a-43fd-ba1a-c5d591f1b504";
+const ROOM_ID = "f7be9d84-a6b6-4870-98a0-58f794ae990d";
 const puppeteer = require('puppeteer');
+const users = require('./users');
   (async () => {
-    const users = [
-      {
-        email:'llksksk@ksksk.com',
-        password:'123456789'
-      },
-      {
-        email:'haktan@bir.com',
-        password:'123456789'
-      },
-      {
-        email:'test@uniteroom.com',
-        password:'123456789'
-      },
-      {
-        email:'akslldjasld@klasjad.com',
-        password:'123456789'
-      },
-      {
-        email:'deneme@deneme.com',
-        password:'123456789'
-      }
-    ]
+ 
     
     const browser = await puppeteer.launch({
       headless: true,
