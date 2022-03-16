@@ -2,12 +2,11 @@
 
 const DURATION= 60;
 const BASE_URL = "https://isu.uniteroom.com/meetings/live/"
-const ROOM_ID = "51ffff87-b84b-4e0e-aa2a-c97163177ca8";
+const ROOM_ID = "85814309-b39f-455d-b75f-d0149c569b20";
 const puppeteer = require('puppeteer');
-const users = require('./users');
   (async () => {
- 
-    console.log(users.length)
+   const arr =  Array.from(Array(50).keys())
+   console.log(arr)
     const browser = await puppeteer.launch({
       headless: true,
       // devtools: true,
@@ -24,14 +23,15 @@ const users = require('./users');
       ignoreDefaultArgs: ['--mute-audio']
     });
     const start = Date.now();
-    const promises = users.map(async (item) => {
+    const promises = arr.map(async (item) => {
+      console.log(item)
       const context = await browser.createIncognitoBrowserContext();
       const page = await context.newPage();
       page
       .on('console', message => console.log(`${message.type().substr(0, 3).toUpperCase()} ${message.text()}`))
       .on('pageerror', ({ message }) => console.log(message))
-      // .on('response', response =>
-      //   console.log(`${response.status()} ${response.url()}`))
+      .on('response', response =>
+        console.log(`${response.status()} ${response.url()}`))
       .on('requestfailed', request =>
           console.log(`${request.failure().errorText} ${request.url()}`))
       await page.setDefaultNavigationTimeout(0);
@@ -39,9 +39,8 @@ const users = require('./users');
               width: 1000,
               height: 700
             });
-            console.log(item.email)
       await page.goto(BASE_URL+ROOM_ID);
-      await page.type('#login-email',item.email);
+      await page.type('#login-email',`tester-${item}@uniteroom.com`);
       await page.type('#login-password', "123456789");
       await Promise.all([
         page.click('.btn-primary'),
